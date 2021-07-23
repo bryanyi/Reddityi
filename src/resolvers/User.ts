@@ -134,6 +134,8 @@ export class UserResolver {
       };
     }
 
+    // .userId is a customizable property that we are setting to store user.id
+    // req.session.ADD_WHATEVER_HERE = add_whatever_you_want_to_store_in_the_session
     req.session.userId = user.id;
 
     return { user };
