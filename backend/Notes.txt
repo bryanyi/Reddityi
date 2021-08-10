@@ -1,0 +1,83 @@
+# IMPORTANT COMMANDS
+- yarn watch: compiles changes into dist folder
+- yarn dev: start backend server 
+- redis-server: starting the redis server
+- remember to start Postgresql application
+
+# NOTES
+1. npm init -y
+2. yarn add -D @types/node ts-node typescript nodemon
+
+# A Custom tsconfig
+3. npx tsconfig.json
+
+# ts-node is one way to run the ts file, but we won't use this one since it's slow.
+# Another way we will do this is by making a watch command with tsc -w, then make the start command actually run node on the javascript file.
+
+# Two Terminals
+4. We have 2 terminals: 1) the watch command, which compiles typescript, and 2) the nodemon command, which will constantly run the server.
+
+# Database - install mikroOrm
+5. yarn add @mikro-orm/cli @mikro-orm/core @mikro-orm/migrations @mikro-orm/postgresql pg
+
+# Setting up the server
+6. yarn add express apollo-server-express graphql type-graphql
+7. yarn add -D @types/express
+
+# set up graphql with apollo in the index.ts
+# Set up authentication with node-argon2
+8. yarn add argon2
+
+# Once a user logs in, we have to store a cookie in the user's browser
+# Using Redis because it's very fast
+9. yarn add redis connect-redis express-session
+
+### How Sessions Work
+
+1).
+req.session.userId = user.id
+^ this line is storing the user's id into session
+{userId: 1} --> send that to redis
+
+2).
+- Redis is a key value store
+sess: slktjgnslekrjgns --> {userId:1}
+^ So if I give redis that key, then it would give me the {userId:1} data. 
+
+3).
+- express-session will set a cookie on my browser, which looks like gibberish like slktjgnslekrjgn23g23g, which 
+is actually a version of the sess key above on line 35. 
+- When user makes a request, the gibberish key (slktjgnslekrjgn23g23g) which is posted
+in the browser, will be sent to the server. 
+
+4).
+In the server, the gibberish key will be decrypted back into sess: slktjgnslekrjgns,
+
+5).
+Then a request to redis will be made using sess: slktjgnslekrjgns, which will get back
+our user info
+
+sess: slktjgnslekrjgns --> {userId:1}
+req.session = {userId: 1}
+
+# frontend 
+- Next.js Chakra-ui
+- Command: 
+    yarn create next-app --example with-chakra-ui client
+- Removed every file inside the components folder.
+- Outside of the components folder, removed everything except for index, _app.tsx, and _document.js
+
+- Using urql
+- Using graphql code generator (https://www.graphql-code-generator.com/docs/getting-started/installation)
+- to help us create graphql hooks
+
+2:51:50
+REVIEW!
+* 2:59:29 - need to review the cookie part and see why a cookie isnt being stored in session.
+3:06:21 - about to use a query builder since persist and flush isnt working. 
+
+## Graphcache 
+- URQL doesn't come with a normalized cache by default
+
+3:46:37
+- Logout button isn't working for some reason
