@@ -79,5 +79,5 @@ REVIEW!
 ## Graphcache 
 - URQL doesn't come with a normalized cache by default
 
-3:46:37
-- Logout button isn't working for some reason
+
+3:50:02 
