@@ -20,6 +20,10 @@ export class User {
   @Property({ type: "text", unique: true })
   username!: string;
 
+  @Field()
+  @Property({ type: "text", unique: true })
+  email!: string;
+
   // Remove field so that it's not available on the graphql schema
   @Property({ type: "text" })
   password!: string;
