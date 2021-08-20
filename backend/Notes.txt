@@ -80,4 +80,5 @@ REVIEW!
 - URQL doesn't come with a normalized cache by default
 
 
-4:56:22
+
+5:44:00 - converted to typeorm

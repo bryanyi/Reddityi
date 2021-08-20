@@ -32,6 +32,7 @@
     "@types/uuid": "^8.3.1",
     "nodemon": "^2.0.12",
     "ts-node": "^10.1.0",
+    "typeorm": "^0.2.37",
     "typescript": "^4.3.5"
   },
   "dependencies": {
@@ -52,12 +53,5 @@
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
     "uuid": "^8.3.2"
-  },
-  "mikro-orm": {
-    "useTsNode": true,
-    "configPaths": [
-      "./src/mikro-orm.config.ts",
-      "./dist/mikro-orm.config.js"
-    ]
   }
 }

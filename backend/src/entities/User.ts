@@ -1,30 +1,36 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, Int, ObjectType } from "type-graphql";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @ObjectType() // We need to turn classes into a graphql type
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @Field(() => Int) // Fields exposes the data into the graphql schema. Without it, it won't show up in the graphql schema, but it'll stay in the DB.
-  @PrimaryKey()
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Field(() => String)
-  @Property({ type: "date" })
-  createdAt = new Date();
+  @CreateDateColumn()
+  createdAt = Date;
 
   @Field(() => String)
-  @Property({ type: "date", onUpdate: () => new Date() })
-  updatedAt = new Date();
+  @UpdateDateColumn()
+  updatedAt = Date;
 
   @Field()
-  @Property({ type: "text", unique: true })
+  @Column({ unique: true })
   username!: string;
 
   @Field()
-  @Property({ type: "text", unique: true })
+  @Column({ unique: true })
   email!: string;
 
-  // Remove field so that it's not available on the graphql schema
-  @Property({ type: "text" })
+  @Column({ unique: true })
   password!: string;
 }
