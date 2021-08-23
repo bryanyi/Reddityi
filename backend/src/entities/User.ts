@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Post } from "./Post";
 
 @ObjectType() // We need to turn classes into a graphql type
 @Entity()
@@ -14,14 +16,6 @@ export class User extends BaseEntity {
   @Field(() => Int) // Fields exposes the data into the graphql schema. Without it, it won't show up in the graphql schema, but it'll stay in the DB.
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @Field(() => String)
-  @CreateDateColumn()
-  createdAt = Date;
-
-  @Field(() => String)
-  @UpdateDateColumn()
-  updatedAt = Date;
 
   @Field()
   @Column({ unique: true })
@@ -33,4 +27,15 @@ export class User extends BaseEntity {
 
   @Column({ unique: true })
   password!: string;
+
+  @OneToMany(() => Post, (post) => post.creator)
+  posts: Post[];
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt = Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt = Date;
 }

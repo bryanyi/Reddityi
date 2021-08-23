@@ -81,4 +81,4 @@ REVIEW!
 
 
 
-5:44:00 - converted to typeorm
+6:15:00 creating a global error for not authenticated users
