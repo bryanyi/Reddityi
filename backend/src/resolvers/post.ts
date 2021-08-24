@@ -12,6 +12,7 @@ import {
 } from "type-graphql";
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
 @InputType()
 class PostInput {
@@ -25,8 +26,18 @@ class PostInput {
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  posts(): Promise<Post[]> {
-    return Post.find();
+  posts(
+    @Arg("limit") limit: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<Post[]> {
+    const realLimit = Math.min(50, limit);
+    return getConnection()
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .where('"createdAt > :cursor"', { cursor })
+      .orderBy('"createdAt"', "DESC")
+      .limit(realLimit)
+      .getMany();
   }
 
   @Query(() => Post, { nullable: true })
