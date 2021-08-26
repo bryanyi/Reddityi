@@ -3,6 +3,7 @@
 - yarn dev: start backend server 
 - redis-server: starting the redis server
 - remember to start Postgresql application
+- frontend/ yarn dev
 
 # NOTES
 1. npm init -y
@@ -81,4 +82,4 @@ REVIEW!
 
 
 
-6:42:00 using the query builder to make pagination
+7:00:00 Fixing migrations stuff
