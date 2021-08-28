@@ -82,4 +82,4 @@ REVIEW!
 
 
 
-7:00:00 Fixing migrations stuff
+7:30:00  continuing with pagination

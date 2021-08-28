@@ -16,7 +16,7 @@ import { PostResolver } from "./resolvers/Post";
 import { UserResolver } from "./resolvers/User";
 
 const main = async () => {
-  const conn = await createConnection({
+  await createConnection({
     type: "postgres",
     database: "reddityi2",
     username: "postgres",
@@ -27,7 +27,7 @@ const main = async () => {
     entities: [Post, User],
   });
 
-  await conn.runMigrations();
+  // await conn.runMigrations();
 
   const app = express();
 
