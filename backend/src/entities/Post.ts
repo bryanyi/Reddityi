@@ -41,7 +41,7 @@ export class Post extends BaseEntity {
   creator: User;
 
   @OneToMany(() => UpVote, (upvote) => upvote.post)
-  upvotes: UpVote[];
+  up_votes: UpVote[];
 
   @Field(() => String)
   @CreateDateColumn()

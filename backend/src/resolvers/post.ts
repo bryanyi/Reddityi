@@ -16,7 +16,7 @@ import {
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
-import { UpVote } from "src/entities/UpVote";
+import { UpVote } from "../entities/UpVote";
 
 @InputType()
 class PostInput {
@@ -52,20 +52,25 @@ export class PostResolver {
     const isUpVote = value !== -1;
     const realValue = isUpVote ? 1 : -1;
     const { userId } = req.session;
-    UpVote.insert({
-      userId,
-      postId,
-      value: realValue,
-    });
+    // UpVote.insert({
+    //   userId,
+    //   postId,
+    //   value: realValue,
+    // });
 
     await getConnection().query(
       `
-    UPDATE post p
-    SET p.points = p.points + $1
-    WHERE p.id = $2
-
-    `,
-      [realValue, postId]
+    START TRANSACTION;
+    
+    INSERT INTO up_vote ("userId", "postId", value)
+    values (${userId}, ${postId}, ${realValue});
+    
+    UPDATE post
+    SET points = points + ${realValue}
+    WHERE id = ${postId};
+    
+    COMMIT;
+    `
     );
 
     return true;
