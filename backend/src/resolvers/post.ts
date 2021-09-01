@@ -16,6 +16,7 @@ import {
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { UpVote } from "src/entities/UpVote";
 
 @InputType()
 class PostInput {
@@ -39,6 +40,35 @@ export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 150) + "...";
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpVote = value !== -1;
+    const realValue = isUpVote ? 1 : -1;
+    const { userId } = req.session;
+    UpVote.insert({
+      userId,
+      postId,
+      value: realValue,
+    });
+
+    await getConnection().query(
+      `
+    UPDATE post p
+    SET p.points = p.points + $1
+    WHERE p.id = $2
+
+    `,
+      [realValue, postId]
+    );
+
+    return true;
   }
 
   @Query(() => PaginatedPosts)
