@@ -10,16 +10,16 @@ export class UpVote extends BaseEntity {
   @PrimaryColumn()
   userId: number;
 
-  @Column()
+  @Column({ nullable: true })
   user: number;
 
-  @ManyToOne(() => User, (user) => user.up_votes)
+  @ManyToOne(() => User, (user) => user.upvotes)
   creatorId: number;
 
   @PrimaryColumn()
   postId: number;
 
   // one user can have many posts
-  @ManyToOne(() => Post, (post) => post.up_votes)
+  @ManyToOne(() => Post, (post) => post.upvotes)
   post: Post;
 }
