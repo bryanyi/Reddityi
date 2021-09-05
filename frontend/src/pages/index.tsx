@@ -11,12 +11,13 @@ import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
 import { Layout } from "../components/Layout";
+import { VoteSection } from "../components/VoteSection";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 20,
+    limit: 15,
     cursor: null as null | string,
   });
   const [{ data, fetching }] = usePostsQuery({
@@ -41,7 +42,7 @@ const Index = () => {
       ) : (
         <Stack spacing={8}>
           {data!.posts.posts.map((p) => (
-            <Box
+            <Flex
               key={p.id}
               p={5}
               shadow="md"
@@ -49,11 +50,15 @@ const Index = () => {
               borderRadius="md"
               mt={4}
             >
-              <Heading fontSize="xl">{p.title}</Heading>
-              <Text mt={4} color="gray">
-                {p.textSnippet}
-              </Text>
-            </Box>
+              <VoteSection post={p} />
+              <Box>
+                <Heading fontSize="xl">{p.title}</Heading>
+                <Text>posted by {p.creator.username}</Text>
+                <Text mt={4} color="gray">
+                  {p.textSnippet}
+                </Text>
+              </Box>
+            </Flex>
           ))}
         </Stack>
       )}
