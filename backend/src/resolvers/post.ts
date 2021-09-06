@@ -52,26 +52,55 @@ export class PostResolver {
     const isUpVote = value !== -1;
     const realValue = isUpVote ? 1 : -1;
     const { userId } = req.session;
-    // UpVote.insert({
-    //   userId,
-    //   postId,
-    //   value: realValue,
-    // });
 
-    await getConnection().query(
-      `
-    START TRANSACTION;
-    
-    INSERT INTO up_vote ("userId", "postId", value)
-    values (${userId}, ${postId}, ${realValue});
-    
-    UPDATE post
-    SET points = points + ${realValue}
-    WHERE id = ${postId};
-    
-    COMMIT;
-    `
-    );
+    const upvote = await UpVote.findOne({ where: { postId, userId } });
+
+    // the user has voted on the post before
+    // and they are changing their vote.
+    if (upvote && upvote.value !== realValue) {
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+        update up_vote
+        set value = $1
+        where "postId" = $2 and "userId" = $3
+        
+        `,
+          [realValue, postId, userId]
+        );
+
+        await tm.query(
+          `
+        
+          update post
+          set points = points + $1
+          where id = $2
+        
+        `,
+          [2 * realValue, postId]
+        );
+      });
+    } else if (!upvote) {
+      // has never voted before
+      await getConnection().transaction(async (tm) => {
+        tm.query(
+          `
+          insert into up_vote ("userId", "postId", value)
+          values ($1, $2, $3)
+        `,
+          [userId, postId, realValue]
+        );
+
+        await tm.query(
+          `
+          update post
+          set points = points + $1
+          where id = $2
+        `,
+          [realValue, postId]
+        );
+      });
+    }
 
     return true;
   }
@@ -79,20 +108,25 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Ctx() { req }: MyContext
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit) + 1;
     const realLimitPlusOne = realLimit + 1;
 
     const replacements: any[] = [realLimitPlusOne];
 
+    if (req.session.userId) {
+      replacements.push(req.session.userId);
+    }
+    let cursorIdx = 3;
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
+      cursorIdx = replacements.length;
     }
 
     const posts = await getConnection().query(
       `
-    
     SELECT p.*, 
     json_build_object(
       'id', u.id,
@@ -100,12 +134,17 @@ export class PostResolver {
       'email', u.email,
       'createdAt', u."createdAt",
       'updatedAt', u."updatedAt"
-      ) creator
-    FROM post p 
-    INNER JOIN public.user u on u.id = p."creatorId"
-    ${cursor ? `WHERE p."createdAt" < $2` : ""}
-    ORDER BY p."createdAt" DESC
-    LIMIT $1
+      ) creator,
+      ${
+        req.session.userId
+          ? '(select value from "up_vote" where "userId" = $2 and "postId" = p.id) "voteStatus"'
+          : 'null as "voteStatus"'
+      }
+      FROM post p 
+      INNER JOIN public.user u on u.id = p."creatorId"
+      ${cursor ? `WHERE p."createdAt" < $${cursorIdx}` : ""}
+      ORDER BY p."createdAt" DESC
+      LIMIT $1
     `,
       replacements
     );
@@ -131,7 +170,7 @@ export class PostResolver {
 
   @Query(() => Post, { nullable: true })
   post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id);
+    return Post.findOne(id, { relations: ["creator"] });
   }
 
   @Mutation(() => Post)
@@ -163,9 +202,13 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg("id") id: number): Promise<boolean> {
+  @UseMiddleware(isAuth)
+  async deletePost(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
     try {
-      await Post.delete(id);
+      await Post.delete({ id, creatorId: req.session.userId });
     } catch (error) {
       console.error(error);
     }
