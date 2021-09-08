@@ -187,12 +187,12 @@ export class PostResolver {
 
   @Mutation(() => Post, { nullable: true })
   async updatePost(
-    @Arg("id") id: number,
+    @Arg("id", () => Int) id: number,
     @Arg("title") title: string,
     @Arg("text") text: string,
     @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    const post = await getConnection()
+    const result = await getConnection()
       .createQueryBuilder()
       .update(Post)
       .set({ title, text })
@@ -203,8 +203,7 @@ export class PostResolver {
       .returning("*")
       .execute();
 
-    console.log("post: ", post);
-    return post as any;
+    return result.raw[0];
   }
 
   @Mutation(() => Boolean)
