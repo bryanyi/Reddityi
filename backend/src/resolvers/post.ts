@@ -188,17 +188,23 @@ export class PostResolver {
   @Mutation(() => Post, { nullable: true })
   async updatePost(
     @Arg("id") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string
+    @Arg("title") title: string,
+    @Arg("text") text: string,
+    @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    const post = await Post.findOne(id);
-    if (!post) {
-      return null;
-    }
+    const post = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning("*")
+      .execute();
 
-    if (typeof title !== "undefined") {
-      Post.update({ id }, { title });
-    }
-    return post;
+    console.log("post: ", post);
+    return post as any;
   }
 
   @Mutation(() => Boolean)
@@ -207,11 +213,23 @@ export class PostResolver {
     @Arg("id", () => Int) id: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    try {
-      await Post.delete({ id, creatorId: req.session.userId });
-    } catch (error) {
-      console.error(error);
-    }
+    // not cascading
+    // try {
+    //   const post = await Post.findOne(id);
+    //   if (!post) {
+    //     return false;
+    //   }
+    //   if (post.creatorId !== req.session.userId) {
+    //     throw new Error("not authorized");
+    //   }
+    //   await UpVote.delete({ postId: id });
+    //   await Post.delete({ id });
+    // } catch (error) {
+    //   console.error(error);
+    // }
+
+    // cascading - on UpVote entity, cascading is on
+    await Post.delete({ id, creatorId: req.session.userId });
     return true;
   }
 }
