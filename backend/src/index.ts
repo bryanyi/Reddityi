@@ -15,6 +15,8 @@ import { User } from "./entities/User";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/Post";
 import { UserResolver } from "./resolvers/User";
+import { createUpVoteLoader } from "./utils/createUpVoteLoader";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
   await createConnection({
@@ -67,7 +69,13 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ req, res, redis }),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      upvoteLoader: createUpVoteLoader(),
+    }), // context runs on every request. the createUserLoader function will batch and cache loading of users in a single request.
   });
 
   apolloServer.applyMiddleware({ app, cors: false });

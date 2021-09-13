@@ -1,6 +1,8 @@
+import { Redis } from "ioredis";
 import { Request, Response } from "express";
 import { SessionData, Session } from "express-session";
-import { Redis } from "ioredis";
+import { createUpVoteLoader } from "./utils/createUpVoteLoader";
+import { createUserLoader } from "./utils/createUserLoader";
 
 export type MyContext = {
   req: Request & {
@@ -8,4 +10,6 @@ export type MyContext = {
   };
   res: Response;
   redis: Redis;
+  userLoader: ReturnType<typeof createUserLoader>;
+  upvoteLoader: ReturnType<typeof createUpVoteLoader>;
 };
