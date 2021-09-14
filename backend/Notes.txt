@@ -82,4 +82,8 @@ REVIEW!
 
 
 
-11:36:00
+Explain invalidation in createUrqlClient
+Review DataLoader library 
+
+Deployment: 11:43:55
+Dokku
