@@ -9,14 +9,14 @@ interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
   const router = useRouter();
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(), // not letting this run on the server
+  const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const { data, loading } = useMeQuery({
+    skip: isServer(), // not letting this run on the server
   });
   let body = null;
 
   // data is loading
-  if (fetching) {
+  if (loading) {
     body = null;
   }
   // user not logged in
