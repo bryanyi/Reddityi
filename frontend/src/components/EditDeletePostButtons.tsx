@@ -7,11 +7,18 @@ import { useDeletePostMutation, useMeQuery } from "../generated/graphql";
 
 interface EditDeletePostButtons {
   id: number;
+  creatorId: number;
 }
 
-const EditDeletePostButtons: React.FC<EditDeletePostButtons> = ({ id }) => {
+const EditDeletePostButtons: React.FC<EditDeletePostButtons> = ({
+  id,
+  creatorId,
+}) => {
   const { data: meData } = useMeQuery();
   const [deletePost] = useDeletePostMutation();
+
+  if (meData?.me?.id !== creatorId) return null;
+
   return (
     <Box>
       <NextLink href="/post/edit/[id]" as={`/post/edit/${id}`}>
@@ -28,7 +35,12 @@ const EditDeletePostButtons: React.FC<EditDeletePostButtons> = ({ id }) => {
         aria-label="Delete Post"
         colorScheme="red"
         onClick={() => {
-          deletePost({ variables: { id } });
+          deletePost({
+            variables: { id },
+            update: (cache) => {
+              cache.evict({ id: "Post:" + id });
+            },
+          });
         }}
       />
     </Box>

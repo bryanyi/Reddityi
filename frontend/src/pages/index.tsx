@@ -7,23 +7,22 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-
+import { withApollo } from "../utils/withApollo";
 import NextLink from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import EditDeletePostButtons from "../components/EditDeletePostButtons";
 import { Layout } from "../components/Layout";
 import { VoteSection } from "../components/VoteSection";
 import { useMeQuery, usePostsQuery } from "../generated/graphql";
 
 const Index = () => {
-  const [variables, setVariables] = useState({
-    limit: 15,
-    cursor: null as null | string,
-  });
-
   const { data: meData } = useMeQuery();
-  const { data, error, loading } = usePostsQuery({
-    variables,
+  const { data, error, loading, fetchMore, variables } = usePostsQuery({
+    variables: {
+      limit: 15,
+      cursor: null,
+    },
+    notifyOnNetworkStatusChange: true, // makes loading true
   });
 
   if (error) {
@@ -59,7 +58,10 @@ const Index = () => {
                       {p.textSnippet}
                     </Text>
                     {meData?.me?.id === p.creator.id && (
-                      <EditDeletePostButtons id={p.id} />
+                      <EditDeletePostButtons
+                        id={p.id}
+                        creatorId={p.creator.id}
+                      />
                     )}
                   </Flex>
                 </Box>
@@ -72,9 +74,12 @@ const Index = () => {
         <Flex>
           <Button
             onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    data.posts.posts[data.posts.posts.length - 1].createdAt,
+                },
               });
             }}
             isLoading={loading}
@@ -90,4 +95,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default withApollo({ ssr: true })(Index);
