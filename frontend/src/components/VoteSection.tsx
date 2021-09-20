@@ -44,16 +44,17 @@ export const VoteSection: React.FC<VoteSectionProps> = ({ post }) => {
         return;
       }
       const newPoints =
-        (data.points as number) + (data.voteStatus ? 1 : 2) * value;
-      cache.writeFragment(
-        gql`
+        (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+      cache.writeFragment({
+        id: "Post:" + postId,
+        fragment: gql`
           fragment __ on Post {
             points
             voteStatus
           }
         `,
-        { id: postId, points: newPoints, voteStatus: value } as any
-      );
+        data: { points: newPoints, voteStatus: value },
+      });
     }
   };
 
