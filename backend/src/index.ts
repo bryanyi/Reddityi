@@ -1,3 +1,4 @@
+import "dotenv-safe/config"
 import { ApolloServer } from "apollo-server-express";
 import connectRedis from "connect-redis";
 import cors from "cors";
@@ -19,28 +20,27 @@ import { createUpVoteLoader } from "./utils/createUpVoteLoader";
 import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
-  await createConnection({
+  const conn = await createConnection({
     type: "postgres",
-    database: "reddityi2",
-    username: "postgres",
-    password: "postgres",
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true, // good for development
+    // synchronize: true, // good for development
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, UpVote],
   });
 
-  // await conn.runMigrations();
+  await conn.runMigrations();
   // await Post.delete({});
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
+  app.set("trust proxy", 1)
 
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     })
   );
@@ -59,7 +59,7 @@ const main = async () => {
         secure: __prod__, // cookie only works in http
       },
       saveUninitialized: false,
-      secret: "argnouilaernluiaernvliaunerviuop",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -80,7 +80,8 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  app.listen(4000, () => {
+
+  app.listen(parseInt(process.env.PORT), () => {
     console.log("Reddityi server started on localhost:4000");
   });
 };
