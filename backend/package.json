@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "apollo-server-express": "^2",
-    "argon2": "^0.28.2",
+    "argon2": "^0.26.2",
     "class-validator": "^0.13.1",
     "connect-redis": "^6.0.0",
     "dataloader": "^2.0.0",
