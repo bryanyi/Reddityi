@@ -57,6 +57,7 @@ const main = async () => {
         httpOnly: true,
         sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in http
+        domain: __prod__ ? ".bryanyiapps.com" : undefined
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
