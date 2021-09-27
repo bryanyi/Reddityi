@@ -4,3 +4,4 @@ dump.rdb
 Notes.txt
 .env
 .env.production
+deploy.sh
