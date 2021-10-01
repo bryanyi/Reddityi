@@ -21,6 +21,6 @@
     "isolatedModules": true,
     "jsx": "preserve"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "cypress/integration/app.spec.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/cypress/integration/app.spec.js"],
   "exclude": ["node_modules"]
 }
