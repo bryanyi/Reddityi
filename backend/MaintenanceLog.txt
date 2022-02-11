@@ -1,0 +1,17 @@
+February 10th, 2022
+- Noticed today that there was a "Failed to Fetch" error when logging into app.
+- Noticed that the Network graphql fetches failed. 
+- Noticed that when I hit my api link on the browser, there's a "unsecure website" warning, which shouldn't happen.
+
+Solution:
+- The Dokku letsencrypt needed to be updated.
+- Also updated yarn packages for both frontend and backend - not sure if the app would still fail if this wasn't done, but I did this first before realizing the letsencrypt update. 
+
+Steps:
+1. ssh into Digital Ocean droplet
+2. Make sure that my local repo is prepared based on Dockerfile
+  - I had to make sure to run "yarn build" so that a dist folder was generated.
+3. Run sudo dokku letsencrypt:auto-renew app-name.
+  - Repo link here: https://github.com/dokku/dokku-letsencrypt
+4. When I hit my api from the browser, the "unsecure" warning disappears and the site is encrypted. 
+5. I logged into the site and the "Failed To Fetch" warning was gone and the blog posts came back. 

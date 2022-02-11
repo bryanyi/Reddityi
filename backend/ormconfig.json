@@ -4,7 +4,7 @@
   "port": 5432,
   "username": "postgres",
   "password": "postgres",
-  "database": "reddityi3",
+  "database": "reddityi2",
   "entities": ["dist/entities/*.js"],
   "migrations": ["dist/migrations/*.js"]
 }
